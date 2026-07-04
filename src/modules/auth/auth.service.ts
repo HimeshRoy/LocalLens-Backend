@@ -71,8 +71,6 @@ export const loginUser = async (payload: LoginUserInput) => {
     };
   }
 
-  const token = generateToken(user.id, user.username, user.role);
-
   const isPasswordCorrect = await bcrypt.compare(
     payload.password,
     user.password,
@@ -84,6 +82,8 @@ export const loginUser = async (payload: LoginUserInput) => {
       message: "Invalid credentials",
     };
   }
+
+  const token = generateToken(user.id, user.username, user.role);
 
   return {
     success: true,
