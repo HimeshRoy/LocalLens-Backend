@@ -237,7 +237,11 @@ export const uploadCover = async (
 };
 
 export const getNearby = async (req: Request, res: Response): Promise<void> => {
-  const query = req.query as unknown as NearbyPlacesQuery;
+  const query: NearbyPlacesQuery = {
+    latitude: Number(req.query.latitude),
+    longitude: Number(req.query.longitude),
+    radius: Number(req.query.radius),
+  };
 
   const result = await getNearbyPlaces(query);
 
