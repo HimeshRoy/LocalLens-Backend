@@ -2,11 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ZodType } from "zod";
 
 export const validate = (schema: ZodType) => {
-  return (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse({
       body: req.body,
       params: req.params,
@@ -28,7 +24,9 @@ export const validate = (schema: ZodType) => {
 
     if (data.body) req.body = data.body as typeof req.body;
     if (data.params) req.params = data.params as typeof req.params;
-    if (data.query) req.query = data.query as typeof req.query;
+    if (data.query) {
+      Object.assign(req.query, data.query);
+    }
 
     next();
   };
