@@ -100,3 +100,23 @@ export const loginUser = async (payload: LoginUserInput) => {
     },
   };
 };
+
+export const checkUsernameAvailability = async (
+  username: string,
+) => {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  return {
+    success: true,
+    message: existingUser
+      ? "Username already taken"
+      : "Username available",
+    data: {
+      available: !existingUser,
+    },
+  };
+};

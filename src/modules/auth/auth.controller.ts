@@ -1,5 +1,5 @@
 import { type Request, type Response } from "express";
-import { registerUser, loginUser } from "./auth.service.js";
+import { registerUser, loginUser, checkUsernameAvailability } from "./auth.service.js";
 import ApiResponse from "../../utils/ApiResponse.js";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -43,4 +43,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       message: "Internal Server Error",
     });
   }
+};
+
+export const checkUsername = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const username = req.query.username as string;
+
+  const result = await checkUsernameAvailability(username);
+
+  const response = new ApiResponse(
+    result.success,
+    result.message,
+    result.data,
+  );
+
+  res.status(200).json(response);
 };

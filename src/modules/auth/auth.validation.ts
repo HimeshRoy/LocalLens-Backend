@@ -27,3 +27,18 @@ export const loginSchema = z.object({
   identifier: z.string().min(3),
   password: z.string().min(8),
 });
+
+export const checkUsernameSchema = z.object({
+  query: z.object({
+    username: z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "Username must be at least 3 characters")
+  .max(20, "Username cannot exceed 20 characters")
+  .regex(
+    /^[a-z0-9_]+$/,
+    "Username can only contain lowercase letters, numbers and underscores"
+  ),
+  }),
+});
