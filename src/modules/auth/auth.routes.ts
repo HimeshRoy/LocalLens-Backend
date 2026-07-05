@@ -1,12 +1,18 @@
 import { Router } from "express";
-import { register, login, checkUsername } from "./auth.controller.js";
+import {
+  register,
+  login,
+  checkUsername,
+  checkEmail,
+} from "./auth.controller.js";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
-import { checkUsernameSchema } from "./auth.validation.js";
+import { checkUsernameSchema, checkEmailSchema } from "./auth.validation.js";
 
 const router = Router();
 
 router.get("/check-username", validate(checkUsernameSchema), checkUsername);
+router.get("/check-email", validate(checkEmailSchema), checkEmail);
 router.post("/register", register);
 router.post("/login", login);
 

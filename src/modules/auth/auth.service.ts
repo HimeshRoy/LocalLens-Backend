@@ -120,3 +120,23 @@ export const checkUsernameAvailability = async (
     },
   };
 };
+
+export const checkEmailAvailability = async (
+  email: string,
+) => {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email: email.toLowerCase().trim(),
+    },
+  });
+
+  return {
+    success: true,
+    message: existingUser
+      ? "Email already registered"
+      : "Email available",
+    data: {
+      available: !existingUser,
+    },
+  };
+};
