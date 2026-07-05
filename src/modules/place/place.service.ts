@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma.js";
 import { uploadImage } from "../../services/cloudinary.service.js";
-import { generateSlug } from "../../utils/slug.js";
+import { generateSlug, generateUniqueSlug } from "../../utils/slug.js";
 import {
   type CreatePlaceInput,
   type GetPlacesQuery,
@@ -43,7 +43,10 @@ export const createPlace = async (
     };
   }
 
-  const slug = generateSlug(payload.name);
+  const slug = await generateUniqueSlug(
+  payload.name,
+  payload.city
+);
 
   const place = await prisma.place.create({
     data: {
