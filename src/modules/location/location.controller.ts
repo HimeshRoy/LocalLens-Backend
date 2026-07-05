@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reverseGeocode } from "./location.service.js";
+import { reverseGeocode, searchLocation } from "./location.service.js";
 
 export const getCurrentLocation = async (
   req: Request,
@@ -22,4 +22,27 @@ export const getCurrentLocation = async (
       message: "Failed to fetch location.",
     });
   }
+};
+
+export const search = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const query = req.query.q as string;
+
+  if (!query || query.trim().length < 2) {
+    res.status(400).json({
+      success: false,
+      message: "Search query is required.",
+    });
+    return;
+  }
+
+  const locations = await searchLocation(query);
+
+  res.status(200).json({
+    success: true,
+    message: "Locations fetched successfully.",
+    data: locations,
+  });
 };
