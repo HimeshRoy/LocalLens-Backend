@@ -2,37 +2,39 @@ import { PriceRange } from "@prisma/client";
 import { z } from "zod";
 
 export const createPlaceSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Place name must be at least 2 characters")
-    .max(100, "Place name cannot exceed 100 characters"),
+  body: z.object({
+    name: z
+      .string()
+      .trim()
+      .min(2, "Place name must be at least 2 characters")
+      .max(100, "Place name cannot exceed 100 characters"),
 
-  description: z.string().optional(),
+    description: z.string().optional(),
 
-  address: z.string().min(5, "Address is required"),
+    address: z.string().min(5, "Address is required"),
 
-  city: z.string().min(2, "City is required"),
+    city: z.string().min(2, "City is required"),
 
-  state: z.string().min(2, "State is required"),
+    state: z.string().min(2, "State is required"),
 
-  country: z.string().min(2, "Country is required"),
+    country: z.string().min(2, "Country is required"),
 
-  latitude: z.number(),
+    latitude: z.number(),
 
-  longitude: z.number(),
+    longitude: z.number(),
 
-  phone: z.string().optional(),
+    phone: z.string().optional(),
 
-  website: z.string().url("Invalid website URL").optional(),
+    website: z.string().url("Invalid website URL").optional(),
 
-  openingHours: z.string().optional(),
+    openingHours: z.string().optional(),
 
-  priceRange: z.nativeEnum(PriceRange).optional(),
+    priceRange: z.nativeEnum(PriceRange).optional(),
 
-  coverImage: z.string().optional(),
+    coverImage: z.string().optional(),
 
-  categoryId: z.string().cuid("Invalid category ID"),
+    categoryId: z.string().cuid("Invalid category ID"),
+  }),
 });
 
 export const updatePlaceSchema = createPlaceSchema.partial();
@@ -58,6 +60,7 @@ export const nearbyPlacesSchema = z.object({
 });
 
 export const getPlacesSchema = z.object({
+  query: z.object({
   page: z.coerce.number().min(1).optional(),
 
   limit: z.coerce.number().min(1).max(100).optional(),
@@ -71,4 +74,5 @@ export const getPlacesSchema = z.object({
   sort: z.enum(["latest", "oldest"]).optional(),
 
   priceRange: z.nativeEnum(PriceRange).optional(),
+  })
 });

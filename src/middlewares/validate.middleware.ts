@@ -13,6 +13,7 @@ export const validate = (schema: ZodType) => {
       return res.status(400).json({
         success: false,
         message: result.error.issues[0].message,
+        errors: result.error.issues,
       });
     }
 
