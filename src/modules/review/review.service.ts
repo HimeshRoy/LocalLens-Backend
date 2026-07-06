@@ -2,6 +2,31 @@ import { prisma } from "../../config/prisma.js";
 import { CreateReviewInput, UpdateReviewInput } from "./review.types.js";
 import { InterestEngine } from "../ai/interest.engine.js";
 
+const updatePlaceRating = async (placeId: string) => {
+  const stats = await prisma.review.aggregate({
+    where: {
+      placeId,
+      isActive: true,
+    },
+    _avg: {
+      rating: true,
+    },
+    _count: {
+      rating: true,
+    },
+  });
+
+  await prisma.place.update({
+    where: {
+      id: placeId,
+    },
+    data: {
+      averageRating: Number((stats._avg.rating ?? 0).toFixed(1)),
+      totalReviews: stats._count.rating,
+    },
+  });
+};
+
 export const createReview = async (
   userId: string,
   payload: CreateReviewInput,
@@ -63,6 +88,8 @@ export const createReview = async (
       },
     },
   });
+
+  await updatePlaceRating(payload.placeId);
 
   await InterestEngine.learn({
     userId,
@@ -196,6 +223,8 @@ export const updateReview = async (
     },
   });
 
+  await updatePlaceRating(review.placeId);
+
   return {
     success: true,
     message: "Review updated successfully",
@@ -252,6 +281,8 @@ export const deleteReview = async (
       },
     },
   });
+
+  await updatePlaceRating(review.placeId);
 
   return {
     success: true,
