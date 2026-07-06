@@ -5,9 +5,8 @@ export const uploadPlaceImages = async (
   placeId: string,
   userId: string,
   role: string,
-  files: Express.Multer.File[]
+  files: Express.Multer.File[],
 ) => {
-
   const place = await prisma.place.findUnique({
     where: {
       id: placeId,
@@ -21,10 +20,7 @@ export const uploadPlaceImages = async (
     };
   }
 
-  if (
-    place.createdById !== userId &&
-    role !== "ADMIN"
-  ) {
+  if (place.createdById !== userId && role !== "ADMIN") {
     return {
       success: false,
       message: "You are not authorized to upload images",
@@ -41,11 +37,7 @@ export const uploadPlaceImages = async (
   const uploadedImages = [];
 
   for (const file of files) {
-
-    const { imageUrl, publicId } = await uploadImage(
-  file,
-  "locallens/places"
-);
+    const { imageUrl, publicId } = await uploadImage(file, "locallens/places");
 
     const image = await prisma.placeImage.create({
       data: {
@@ -60,6 +52,18 @@ export const uploadPlaceImages = async (
     });
 
     uploadedImages.push(image);
+  }
+
+  if (uploadedImages.length > 0 && !place.coverImage) {
+    await prisma.place.update({
+      where: {
+        id: placeId,
+      },
+      data: {
+        coverImage: uploadedImages[0].imageUrl,
+        coverImageId: uploadedImages[0].publicId,
+      },
+    });
   }
 
   return {
