@@ -43,10 +43,7 @@ export const createPlace = async (
     };
   }
 
-  const slug = await generateUniqueSlug(
-  payload.name,
-  payload.city
-);
+  const slug = await generateUniqueSlug(payload.name, payload.city);
 
   const place = await prisma.place.create({
     data: {
@@ -160,7 +157,7 @@ export const getPlaces = async (query: GetPlacesQuery) => {
   };
 };
 
-export const getPlaceById = async (id: string,  userId?: string,) => {
+export const getPlaceById = async (id: string, userId?: string) => {
   const place = await prisma.place.findFirst({
     where: {
       id,
@@ -232,12 +229,12 @@ export const getPlaceById = async (id: string,  userId?: string,) => {
   });
 
   if (userId) {
-  await InterestEngine.learn({
-    userId,
-    placeId: id,
-    activityType: "VIEW",
-  });
-}
+    await InterestEngine.learn({
+      userId,
+      placeId: id,
+      activityType: "VIEW",
+    });
+  }
 
   return {
     success: true,
@@ -493,4 +490,23 @@ export const getNearbyPlaces = async (query: NearbyPlacesQuery) => {
     message: "Nearby places fetched successfully",
     data: nearbyPlaces,
   };
+};
+
+export const getPlaceBySlug = async (slug: string) => {
+  return prisma.place.findUnique({
+    where: {
+      slug,
+    },
+    include: {
+      createdBy: {
+        select: {
+          fullName: true,
+          username: true,
+          avatar: true,
+        },
+      },
+      category: true,
+      images: true,
+    },
+  });
 };

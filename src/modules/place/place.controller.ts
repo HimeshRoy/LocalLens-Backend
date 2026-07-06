@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import ApiResponse from "../../utils/ApiResponse.js";
 import {
   createPlace,
@@ -8,7 +8,9 @@ import {
   deletePlace,
   uploadPlaceCover,
   getNearbyPlaces,
+  getPlaceBySlug,
 } from "./place.service.js";
+import * as placeService from "./place.service.js";
 
 import { asyncHandler } from "../../utils/async-handler.js";
 import { ApiError } from "../../utils/api-error.js";
@@ -248,4 +250,29 @@ export const getNearby = async (req: Request, res: Response): Promise<void> => {
   const response = new ApiResponse(result.success, result.message, result.data);
 
   res.status(200).json(response);
+};
+
+export const getBySlug = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const place = await placeService.getPlaceBySlug(req.params.slug as string);
+
+    if (!place) {
+      return res.status(404).json({
+        success: false,
+        message: "Place not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Place fetched successfully",
+      data: place,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
