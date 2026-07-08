@@ -128,9 +128,11 @@ export const getPlaces = async (query: GetPlacesQuery) => {
         },
         {
           category: {
-            name: {
-              contains: query.search,
-              mode: "insensitive",
+            is: {
+              name: {
+                contains: query.search,
+                mode: "insensitive",
+              },
             },
           },
         },
