@@ -108,6 +108,32 @@ export const getPlaces = async (query: GetPlacesQuery) => {
             mode: "insensitive",
           },
         },
+        {
+          city: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          state: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          country: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          category: {
+            name: {
+              contains: query.search,
+              mode: "insensitive",
+            },
+          },
+        },
       ],
     }),
   };
