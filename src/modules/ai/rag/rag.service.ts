@@ -89,8 +89,17 @@ Opening Hours: ${place.openingHours || "Not available"}
     });
     const previousMessages = await MessageService.getMessages(conversation.id);
 
-    const { parsedQuery, places, context } =
-      await this.retrieveContext(question);
+    let parsedQuery = null;
+    let places: any[] = [];
+    let context = "";
+
+    if (PromptService.shouldRetrieve(question)) {
+      const retrieval = await this.retrieveContext(question);
+
+      parsedQuery = retrieval.parsedQuery;
+      places = retrieval.places;
+      context = retrieval.context;
+    }
 
     const conversationHistory = previousMessages
       .map((message) => {

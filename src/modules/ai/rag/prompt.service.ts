@@ -103,4 +103,37 @@ export class PromptService {
 
     return parsed;
   }
+
+  static shouldRetrieve(query: string): boolean {
+    const lower = query.toLowerCase();
+
+    const followUpQuestions = [
+      "is it",
+      "is this",
+      "does it",
+      "does this",
+      "how is",
+      "what about",
+      "tell me more",
+      "more",
+      "why",
+      "can i",
+      "should i",
+      "good",
+      "bad",
+      "parking",
+      "wifi",
+      "price",
+      "cost",
+      "rating",
+      "review",
+      "reviews",
+      "open",
+      "close",
+      "timing",
+      "location",
+    ];
+
+    return !followUpQuestions.some((text) => lower.startsWith(text));
+  }
 }
