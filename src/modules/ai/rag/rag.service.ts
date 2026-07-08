@@ -110,15 +110,28 @@ Opening Hours: ${place.openingHours || "Not available"}
       .join("\n\n");
 
     const fullContext = `
-Conversation History:
+========================
+CONVERSATION HISTORY
+========================
 
 ${conversationHistory}
 
----------------------------------------
+========================
+LOCALLENS KNOWLEDGE BASE
+========================
 
-Knowledge Base:
+${context || "No new retrieval performed."}
 
-${context}
+========================
+IMPORTANT
+
+- The conversation history is the user's ongoing chat.
+- The knowledge base contains verified LocalLens information.
+- Use conversation history for follow-up questions.
+- Use the knowledge base only when recommending places.
+- Never invent information that isn't in the knowledge base.
+- If the knowledge base doesn't contain a requested fact, clearly say:
+  "LocalLens doesn't have that information yet."
 `;
 
     const geminiResponse = await GeminiService.generate(question, fullContext);
