@@ -3,6 +3,7 @@ import { authenticate } from "../../middlewares/auth.middleware.js";
 import {
   getConversation,
   getMyConversations,
+  deleteConversation,
 } from "./conversation.controller.js";
 
 const router = Router();
@@ -10,5 +11,6 @@ const router = Router();
 router.get("/conversations", authenticate, getMyConversations);
 
 router.get("/conversations/:id", authenticate, getConversation);
+router.delete("/conversations/:id", authenticate, deleteConversation);
 
 export default router;

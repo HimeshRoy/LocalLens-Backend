@@ -46,3 +46,25 @@ export const getConversation = asyncHandler(
     );
   },
 );
+
+
+export const deleteConversation = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const userId = req.user.userId;
+
+    await ConversationService.deleteConversation(
+      id as string,
+      userId,
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        true,
+        "Conversation deleted successfully",
+        null,
+      ),
+    );
+  },
+);

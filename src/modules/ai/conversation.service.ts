@@ -47,4 +47,13 @@ export class ConversationService {
       },
     });
   }
+
+  static async deleteConversation(id: string, userId: string) {
+  return prisma.aiConversation.delete({
+    where: {
+      id,
+      userId,
+    },
+  });
+}
 }
