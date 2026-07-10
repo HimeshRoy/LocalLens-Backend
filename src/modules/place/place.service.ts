@@ -193,22 +193,22 @@ export const getPlaceById = async (id: string, userId?: string) => {
     },
 
     include: {
-      category: true,
+  category: true,
 
-      gallery: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-
-      createdBy: {
-        select: {
-          id: true,
-          fullName: true,
-          username: true,
-        },
-      },
+  images: {
+    orderBy: {
+      createdAt: "asc",
     },
+  },
+
+  createdBy: {
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+    },
+  },
+},
   });
 
   if (!place) {
@@ -408,7 +408,6 @@ export const uploadPlaceCover = async (
     };
   }
 
-  // Authorization
   if (place.createdById !== userId && role !== "ADMIN") {
     return {
       success: false,
