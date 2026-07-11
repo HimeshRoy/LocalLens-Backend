@@ -199,6 +199,77 @@ export const getPublicProfile = async (
       isVerified: true,
       createdAt: true,
 
+      places: {
+        where: {
+          isActive: true,
+        },
+
+        take: 6,
+
+        orderBy: {
+          createdAt: "desc",
+        },
+
+        include: {
+          category: true,
+        },
+      },
+
+      reviews: {
+        where: {
+          isActive: true,
+        },
+
+        take: 6,
+
+        orderBy: {
+          createdAt: "desc",
+        },
+
+        include: {
+          place: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              coverImage: true,
+            },
+          },
+        },
+      },
+
+      collections: {
+        where: {
+          isPrivate: false,
+        },
+
+        take: 6,
+
+        orderBy: {
+          updatedAt: "desc",
+        },
+
+        include: {
+          places: {
+            take: 1,
+
+            include: {
+              place: {
+                select: {
+                  coverImage: true,
+                },
+              },
+            },
+          },
+
+          _count: {
+            select: {
+              places: true,
+            },
+          },
+        },
+      },
+
       _count: {
         select: {
           reviews: true,
@@ -217,17 +288,28 @@ export const getPublicProfile = async (
     };
   }
 
+  const formattedCollections = user.collections.map((collection) => ({
+    id: collection.id,
+    name: collection.name,
+    emoji: collection.emoji,
+    description: collection.description,
+    placesCount: collection._count.places,
+    coverImage: collection.places[0]?.place.coverImage ?? null,
+  }));
+
   return {
     success: true,
     message: "Profile fetched successfully",
-    data: user,
+    data: {
+      ...user,
+      collections: formattedCollections,
+    },
   };
 };
 
 export const getMyPlaces = async (
-  userId: string
+  userId: string,
 ): Promise<ServiceResponse<any>> => {
-
   const places = await prisma.place.findMany({
     where: {
       createdById: userId,
@@ -251,9 +333,8 @@ export const getMyPlaces = async (
 };
 
 export const getMyReviews = async (
-  userId: string
+  userId: string,
 ): Promise<ServiceResponse<any>> => {
-
   const reviews = await prisma.review.findMany({
     where: {
       userId,
@@ -291,9 +372,8 @@ export const getMyReviews = async (
 };
 
 export const getMyCollections = async (
-  userId: string
+  userId: string,
 ): Promise<ServiceResponse<any>> => {
-
   const collections = await prisma.collection.findMany({
     where: {
       userId,
@@ -347,9 +427,8 @@ export const getMyCollections = async (
 };
 
 export const getMyFavorites = async (
-  userId: string
+  userId: string,
 ): Promise<ServiceResponse<any>> => {
-
   const favorites = await prisma.favorite.findMany({
     where: {
       userId,
