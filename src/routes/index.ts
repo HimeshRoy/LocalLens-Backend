@@ -11,6 +11,7 @@ import collectionRoutes from "../modules/collection/collection.routes.js";
 import userRoutes from "../modules/user/user.routes.js";
 import aiRoutes from "../modules/ai/ai.routes.js";
 import locationRoutes from "../modules/location/location.routes.js";
+import feedRoutes from "../modules/feed/feed.routes.js";
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use("/collections", collectionRoutes);
 router.use("/users", userRoutes);
 router.use("/location", locationRoutes);
 router.use("/ai", aiRoutes);
+router.use("/feed", feedRoutes);
 
 export default router;
