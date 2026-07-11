@@ -193,22 +193,22 @@ export const getPlaceById = async (id: string, userId?: string) => {
     },
 
     include: {
-  category: true,
+      category: true,
 
-  images: {
-    orderBy: {
-      createdAt: "asc",
-    },
-  },
+      images: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
 
-  createdBy: {
-    select: {
-      id: true,
-      fullName: true,
-      username: true,
+      createdBy: {
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+        },
+      },
     },
-  },
-},
   });
 
   if (!place) {
@@ -334,6 +334,11 @@ export const updatePlace = async (
 
     include: {
       category: true,
+      images: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
 
       createdBy: {
         select: {

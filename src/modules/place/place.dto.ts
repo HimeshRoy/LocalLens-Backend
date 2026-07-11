@@ -31,10 +31,7 @@ export class PlaceDto {
 
       priceRange: place.priceRange,
 
-      averageRating:
-        place.averageRating > 0
-          ? place.averageRating
-          : null,
+      averageRating: place.averageRating > 0 ? place.averageRating : null,
 
       totalReviews: place.totalReviews,
 
@@ -45,6 +42,11 @@ export class PlaceDto {
       },
 
       tags: place.tags.map((tag: any) => tag.tag.name),
+
+      images: place.images.map((image: any) => ({
+        id: image.id,
+        imageUrl: image.imageUrl,
+      })),
 
       isVerified: place.isVerified,
     };
