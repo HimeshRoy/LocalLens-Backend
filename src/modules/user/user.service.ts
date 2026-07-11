@@ -370,6 +370,7 @@ export const getMyReviews = async (
           coverImage: true,
           city: true,
           averageRating: true,
+          slug: true,
           category: {
             select: {
               id: true,
