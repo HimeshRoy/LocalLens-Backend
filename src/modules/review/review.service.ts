@@ -55,54 +55,55 @@ export const createReview = async (
   });
 
   if (existingReview) {
+    if (existingReview.isActive) {
+      return {
+        success: false,
+        message: "You have already reviewed this place",
+      };
+    }
+
+    const restoredReview = await prisma.review.update({
+      where: {
+        id: existingReview.id,
+      },
+      data: {
+        rating: payload.rating,
+        comment: payload.comment,
+        isActive: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+          },
+        },
+        place: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    await updatePlaceRating(payload.placeId);
+
+    await InterestEngine.learn({
+      userId,
+      placeId: payload.placeId,
+      activityType: `REVIEW_${payload.rating}` as
+        "REVIEW_1" | "REVIEW_2" | "REVIEW_3" | "REVIEW_4" | "REVIEW_5",
+    });
+
     return {
-      success: false,
-      message: "You have already reviewed this place",
+      success: true,
+      message: "Review added successfully",
+      data: restoredReview,
     };
   }
-
-  const review = await prisma.review.create({
-    data: {
-      rating: payload.rating,
-      comment: payload.comment,
-
-      placeId: payload.placeId,
-      userId,
-    },
-
-    include: {
-      user: {
-        select: {
-          id: true,
-          fullName: true,
-          username: true,
-        },
-      },
-
-      place: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-    },
-  });
-
-  await updatePlaceRating(payload.placeId);
-
-  await InterestEngine.learn({
-    userId,
-    placeId: payload.placeId,
-    activityType: `REVIEW_${payload.rating}` as
-      "REVIEW_1" | "REVIEW_2" | "REVIEW_3" | "REVIEW_4" | "REVIEW_5",
-  });
-
-  return {
-    success: true,
-    message: "Review added successfully",
-    data: review,
-  };
 };
 
 export const getPlaceReviews = async (placeId: string) => {
