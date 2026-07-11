@@ -36,4 +36,6 @@ export const updateProfileSchema = z.object({
     .trim()
     .max(100, "Country cannot exceed 100 characters")
     .optional(),
+  
+    isPrivate: z.boolean().optional(),
 });

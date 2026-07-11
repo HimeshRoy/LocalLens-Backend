@@ -4,4 +4,5 @@ export interface UpdateProfileInput {
   bio?: string;
   city?: string;
   country?: string;
+  isPrivate?: boolean;
 }

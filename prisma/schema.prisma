@@ -72,6 +72,7 @@ model User {
   interests       UserInterest[]
   isActive        Boolean          @default(true)
   isVerified      Boolean          @default(false)
+  isPrivate Boolean @default(false)
   username        String           @unique
   aiConversations AiConversation[]
 }

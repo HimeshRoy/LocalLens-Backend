@@ -24,6 +24,7 @@ export const getMyProfile = async (
       role: true,
       isVerified: true,
       createdAt: true,
+      isPrivate: true,
 
       _count: {
         select: {
@@ -110,6 +111,7 @@ export const updateProfile = async (
       country: true,
       role: true,
       isVerified: true,
+      isPrivate: true,
       updatedAt: true,
     },
   });
@@ -198,6 +200,7 @@ export const getPublicProfile = async (
       role: true,
       isVerified: true,
       createdAt: true,
+      isPrivate: true,
 
       places: {
         where: {
@@ -273,7 +276,13 @@ export const getPublicProfile = async (
       _count: {
         select: {
           reviews: true,
-          collections: true,
+
+          collections: {
+            where: {
+              isPrivate: false,
+            },
+          },
+
           places: true,
         },
       },
@@ -284,6 +293,14 @@ export const getPublicProfile = async (
     return {
       success: false,
       message: "User not found",
+      data: null,
+    };
+  }
+
+  if (user.isPrivate) {
+    return {
+      success: false,
+      message: "This profile is private.",
       data: null,
     };
   }
