@@ -33,13 +33,13 @@ export class FeedDto {
         isVerified: place.createdBy.isVerified,
       },
 
-      isFavorite: place.favorites.length > 0,
+      isFavorite: (place.favorites?.length ?? 0) > 0,
 
-      isReviewed: place.reviews.length > 0,
+      isSaved: (place.collectionPlaces?.length ?? 0) > 0,
 
-      userRating: place.reviews.length > 0 ? place.reviews[0].rating : null,
+      isReviewed: (place.reviews?.length ?? 0) > 0,
 
-      isSaved: place.collectionPlaces.length > 0,
+      userRating: place.reviews?.length ? place.reviews[0].rating : null,
 
       images: place.images.map((image: any) => ({
         id: image.id,
