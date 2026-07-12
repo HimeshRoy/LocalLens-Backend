@@ -1,7 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { FeedQuery } from "./feed.types.js";
 
-export const getFeed = async (query: FeedQuery) => {
+export const getFeed = async (userId: string, query: FeedQuery) => {
   const page = Math.max(1, Number(query.page) || 1);
 
   const limit = Math.min(20, Number(query.limit) || 10);
@@ -36,6 +36,37 @@ export const getFeed = async (query: FeedQuery) => {
       images: {
         orderBy: {
           createdAt: "asc",
+        },
+      },
+
+      favorites: {
+        where: {
+          userId,
+        },
+        select: {
+          id: true,
+        },
+      },
+
+      reviews: {
+        where: {
+          userId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+          rating: true,
+        },
+      },
+
+      collectionPlaces: {
+        where: {
+          collection: {
+            userId,
+          },
+        },
+        select: {
+          collectionId: true,
         },
       },
     },

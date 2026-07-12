@@ -10,10 +10,12 @@ export const getHomeFeed = async (
   req: Request,
   res: Response,
 ) => {
-  const result = await getFeed({
-    page: Number(req.query.page),
-    limit: Number(req.query.limit),
-  });
+  const result = await getFeed(req.user!.userId, {
+  latitude: Number(req.query.latitude),
+  longitude: Number(req.query.longitude),
+  page: Number(req.query.page),
+  limit: Number(req.query.limit),
+});
 
   res.status(200).json(
     new ApiResponse(
