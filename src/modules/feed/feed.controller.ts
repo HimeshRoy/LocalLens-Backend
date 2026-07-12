@@ -12,7 +12,7 @@ export const getHomeFeed = async (
 ) => {
   const userId = req.user?.userId;
   
-  const result = await getFeed(userId, {
+  const result = await getFeed(req.user?.userId, {
   latitude: Number(req.query.latitude),
   longitude: Number(req.query.longitude),
   page: Number(req.query.page),
