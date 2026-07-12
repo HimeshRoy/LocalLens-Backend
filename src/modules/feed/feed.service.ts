@@ -63,7 +63,7 @@ export const getFeed = async (userId: string | undefined, query: FeedQuery) => {
           }
         : false,
 
-      collectionPlaces: userId
+      collections: userId
         ? {
             where: {
               collection: {

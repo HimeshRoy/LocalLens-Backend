@@ -35,7 +35,7 @@ export class FeedDto {
 
       isFavorite: (place.favorites?.length ?? 0) > 0,
 
-      isSaved: (place.collectionPlaces?.length ?? 0) > 0,
+      isSaved: (place.collections?.length ?? 0) > 0,
 
       isReviewed: (place.reviews?.length ?? 0) > 0,
 
