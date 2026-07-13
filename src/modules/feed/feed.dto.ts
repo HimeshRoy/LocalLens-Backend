@@ -18,6 +18,7 @@ export class FeedDto {
       averageRating: place.averageRating,
 
       totalReviews: place.totalReviews,
+      distance: place.distance,
 
       category: {
         id: place.category.id,
