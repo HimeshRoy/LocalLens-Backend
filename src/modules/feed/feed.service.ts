@@ -8,10 +8,10 @@ export const getFeed = async (userId: string | undefined, query: FeedQuery) => {
   const limit = Math.min(20, Number(query.limit) || 10);
 
   const skip = (page - 1) * limit;
-  
+
   if (query.latitude === undefined || query.longitude === undefined) {
-  throw new Error("Latitude and longitude are required.");
-}
+    throw new Error("Latitude and longitude are required.");
+  }
 
   const radius = 80;
 
@@ -26,19 +26,19 @@ export const getFeed = async (userId: string | undefined, query: FeedQuery) => {
   const maxLng = query.longitude + lngDelta;
 
   const places = await prisma.place.findMany({
-  where: {
-    isActive: true,
+    where: {
+      isActive: true,
 
-    latitude: {
-      gte: minLat,
-      lte: maxLat,
-    },
+      latitude: {
+        gte: minLat,
+        lte: maxLat,
+      },
 
-    longitude: {
-      gte: minLng,
-      lte: maxLng,
+      longitude: {
+        gte: minLng,
+        lte: maxLng,
+      },
     },
-  },
 
     skip,
     take: limit,
@@ -106,18 +106,25 @@ export const getFeed = async (userId: string | undefined, query: FeedQuery) => {
   });
 
   const nearbyFeed = places
-  .map((place) => ({
-    ...place,
+    .map((place) => ({
+      ...place,
 
-    distance: calculateDistance(
-      query.latitude,
-      query.longitude,
-      place.latitude,
-      place.longitude,
-    ),
-  }))
-  .filter((place) => place.distance <= radius)
-  .sort((a, b) => a.distance - b.distance);
+      distance: calculateDistance(
+        query.latitude,
+        query.longitude,
+        place.latitude,
+        place.longitude,
+      ),
+    }))
+    .filter((place) => place.distance <= radius)
+    .sort((a, b) => a.distance - b.distance);
 
-  return nearbyFeed;
+  const hasMore = nearbyFeed.length === limit;
+
+  return {
+    items: nearbyFeed,
+    page,
+    limit,
+    hasMore,
+  };
 };

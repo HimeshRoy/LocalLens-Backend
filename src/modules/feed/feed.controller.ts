@@ -23,7 +23,12 @@ export const getHomeFeed = async (
     new ApiResponse(
       true,
       "Feed fetched successfully",
-      FeedDto.toResponseArray(result),
+      {
+      items: FeedDto.toResponseArray(result.items),
+      page: result.page,
+      limit: result.limit,
+      hasMore: result.hasMore,
+    },
     ),
   );
 };
