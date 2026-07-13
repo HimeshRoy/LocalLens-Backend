@@ -33,6 +33,8 @@ export class FeedDto {
         isVerified: place.createdBy.isVerified,
       },
 
+      createdAt: place.createdAt,
+
       isFavorite: (place.favorites?.length ?? 0) > 0,
 
       isSaved: (place.collections?.length ?? 0) > 0,
