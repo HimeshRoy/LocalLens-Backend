@@ -12,6 +12,7 @@ import userRoutes from "../modules/user/user.routes.js";
 import aiRoutes from "../modules/ai/ai.routes.js";
 import locationRoutes from "../modules/location/location.routes.js";
 import feedRoutes from "../modules/feed/feed.routes.js";
+import adminRoutes from "../modules/admin/admin.routes.js";
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use("/users", userRoutes);
 router.use("/location", locationRoutes);
 router.use("/ai", aiRoutes);
 router.use("/feed", feedRoutes);
+router.use("/admin", adminRoutes);
 
 export default router;
