@@ -52,6 +52,13 @@ export const getCategories = async () => {
     orderBy: {
       name: "asc",
     },
+    include: {
+      _count: {
+        select: {
+          places: true,
+        },
+      },
+    },
   });
 
   return {
@@ -118,10 +125,7 @@ export const updateCategory = async (
   };
 };
 
-export const deleteCategory = async (
-  id: string
-) => {
-
+export const deleteCategory = async (id: string) => {
   const existingCategory = await prisma.category.findUnique({
     where: {
       id,
