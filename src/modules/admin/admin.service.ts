@@ -125,3 +125,32 @@ export const getDashboard = async () => {
     recentReviews,
   };
 };
+
+export const getUsers = async () => {
+  return prisma.user.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+
+    select: {
+      id: true,
+      avatar: true,
+      fullName: true,
+      username: true,
+      email: true,
+      role: true,
+      isVerified: true,
+      isActive: true,
+      createdAt: true,
+
+      _count: {
+        select: {
+          reviews: true,
+          places: true,
+          collections: true,
+          favorites: true,
+        },
+      },
+    },
+  });
+};
