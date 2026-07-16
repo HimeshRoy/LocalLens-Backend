@@ -127,30 +127,69 @@ export const getDashboard = async () => {
 };
 
 export const getUsers = async () => {
-  return prisma.user.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+  const [
+    users,
+    total,
+    verified,
+    admins,
+    suspended,
+  ] = await Promise.all([
+    prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
 
-    select: {
-      id: true,
-      avatar: true,
-      fullName: true,
-      username: true,
-      email: true,
-      role: true,
-      isVerified: true,
-      isActive: true,
-      createdAt: true,
+      select: {
+        id: true,
+        avatar: true,
+        fullName: true,
+        username: true,
+        email: true,
+        role: true,
+        isVerified: true,
+        isActive: true,
+        createdAt: true,
 
-      _count: {
-        select: {
-          reviews: true,
-          places: true,
-          collections: true,
-          favorites: true,
+        _count: {
+          select: {
+            reviews: true,
+            places: true,
+            collections: true,
+            favorites: true,
+          },
         },
       },
+    }),
+
+    prisma.user.count(),
+
+    prisma.user.count({
+      where: {
+        isVerified: true,
+      },
+    }),
+
+    prisma.user.count({
+      where: {
+        role: "ADMIN",
+      },
+    }),
+
+    prisma.user.count({
+      where: {
+        isActive: false,
+      },
+    }),
+  ]);
+
+  return {
+    statistics: {
+      total,
+      verified,
+      admins,
+      suspended,
     },
-  });
+
+    users,
+  };
 };
