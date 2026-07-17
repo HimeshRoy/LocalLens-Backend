@@ -4,6 +4,7 @@ import {
   getDashboard,
   getUsers,
   updateUserStatus,
+  updateUserVerification,
 } from "./admin.service.js";
 
 export const getAdminDashboard = async (_req: Request, res: Response) => {
@@ -15,10 +16,10 @@ export const getAdminDashboard = async (_req: Request, res: Response) => {
 };
 
 export const getAdminUsers = async (
-  _req: Request,
+  req: Request,
   res: Response,
 ) => {
-  const users = await getUsers(_req.query);
+  const users = await getUsers(req.query);
 
   res.status(200).json(
     new ApiResponse(
@@ -43,6 +44,29 @@ export const updateAdminUserStatus = async (
       true,
       `User ${
         isActive ? "activated" : "suspended"
+      } successfully`,
+      user,
+    ),
+  );
+};
+
+export const updateAdminUserVerification = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { isVerified } = req.body;
+
+  const user = await updateUserVerification(
+    id as string,
+    isVerified,
+  );
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      `User ${
+        isVerified ? "verified" : "unverified"
       } successfully`,
       user,
     ),

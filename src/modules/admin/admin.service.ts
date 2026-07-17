@@ -273,3 +273,23 @@ export const updateUserStatus = async (
     },
   });
 };
+
+export const updateUserVerification = async (
+  userId: string,
+  isVerified: boolean,
+) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      isVerified,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      isVerified: true,
+    },
+  });
+};

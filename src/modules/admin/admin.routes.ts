@@ -4,6 +4,7 @@ import {
   getAdminDashboard,
   getAdminUsers,
   updateAdminUserStatus,
+  updateAdminUserVerification,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -18,6 +19,12 @@ router.patch(
   authenticate,
   authorize("ADMIN"),
   updateAdminUserStatus,
+);
+router.patch(
+  "/users/:id/verification",
+  authenticate,
+  authorize("ADMIN"),
+  updateAdminUserVerification,
 );
 
 export default router;
