@@ -313,3 +313,16 @@ export const updateUserRole = async (
     },
   });
 };
+
+export const deleteUser = async (userId: string) => {
+  return prisma.user.delete({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+    },
+  });
+};

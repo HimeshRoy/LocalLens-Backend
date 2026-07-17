@@ -6,6 +6,7 @@ import {
   updateAdminUserStatus,
   updateAdminUserVerification,
   updateAdminUserRole,
+  deleteAdminUser,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -33,5 +34,6 @@ router.patch(
   authorize("ADMIN"),
   updateAdminUserRole,
 );
+router.delete("/users/:id", authenticate, authorize("ADMIN"), deleteAdminUser);
 
 export default router;

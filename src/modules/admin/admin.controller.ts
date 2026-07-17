@@ -6,6 +6,7 @@ import {
   updateUserStatus,
   updateUserVerification,
   updateUserRole,
+  deleteUser,
 } from "./admin.service.js";
 
 export const getAdminDashboard = async (_req: Request, res: Response) => {
@@ -87,6 +88,23 @@ export const updateAdminUserRole = async (
     new ApiResponse(
       true,
       "User role updated successfully",
+      user,
+    ),
+  );
+};
+
+export const deleteAdminUser = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  const user = await deleteUser(id as string);
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "User deleted successfully",
       user,
     ),
   );
