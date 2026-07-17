@@ -253,3 +253,23 @@ export const getUsers = async (query: any) => {
     users,
   };
 };
+
+export const updateUserStatus = async (
+  userId: string,
+  isActive: boolean
+) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      isActive,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      isActive: true,
+    },
+  });
+};
