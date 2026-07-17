@@ -11,6 +11,8 @@ import {
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/authorize.middleware.js";
+import { updateUserRoleSchema } from "./admin.validation.js";
+import { validate } from "../../middlewares/validate.middleware.js";
 
 const router = Router();
 
@@ -32,6 +34,7 @@ router.patch(
   "/users/:id/role",
   authenticate,
   authorize("ADMIN"),
+  validate(updateUserRoleSchema),
   updateAdminUserRole,
 );
 router.delete("/users/:id", authenticate, authorize("ADMIN"), deleteAdminUser);
