@@ -293,3 +293,23 @@ export const updateUserVerification = async (
     },
   });
 };
+
+export const updateUserRole = async (
+  userId: string,
+  role: UserRole,
+) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      role,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      role: true,
+    },
+  });
+};

@@ -5,6 +5,7 @@ import {
   getUsers,
   updateUserStatus,
   updateUserVerification,
+  updateUserRole,
 } from "./admin.service.js";
 
 export const getAdminDashboard = async (_req: Request, res: Response) => {
@@ -68,6 +69,24 @@ export const updateAdminUserVerification = async (
       `User ${
         isVerified ? "verified" : "unverified"
       } successfully`,
+      user,
+    ),
+  );
+};
+
+export const updateAdminUserRole = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  const user = await updateUserRole(id as string, role);
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "User role updated successfully",
       user,
     ),
   );
