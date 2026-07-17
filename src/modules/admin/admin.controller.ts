@@ -14,7 +14,7 @@ export const getAdminUsers = async (
   _req: Request,
   res: Response,
 ) => {
-  const users = await getUsers();
+  const users = await getUsers(_req.query);
 
   res.status(200).json(
     new ApiResponse(

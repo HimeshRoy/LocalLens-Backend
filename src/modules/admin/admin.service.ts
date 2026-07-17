@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma.js";
+import { Prisma, UserRole } from "@prisma/client";
 
 export const getDashboard = async () => {
   const [
@@ -126,15 +127,72 @@ export const getDashboard = async () => {
   };
 };
 
-export const getUsers = async () => {
-  const [
-    users,
-    total,
-    verified,
-    admins,
-    suspended,
-  ] = await Promise.all([
+export const getUsers = async (query: any) => {
+  const {
+    search,
+    role,
+    status,
+    verified: verification,
+    page = 1,
+    limit = 10,
+  } = query;
+
+  const where: Prisma.UserWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      {
+        fullName: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        username: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        email: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  if (role && role !== "ALL") {
+    where.role = role as UserRole;
+  }
+
+  if (status === "ACTIVE") {
+    where.isActive = true;
+  }
+
+  if (status === "SUSPENDED") {
+    where.isActive = false;
+  }
+
+  if (verification === "true") {
+    where.isVerified = true;
+  }
+
+  if (verification === "false") {
+    where.isVerified = false;
+  }
+
+  const currentPage = Number(page);
+  const take = Number(limit);
+  const skip = (currentPage - 1) * take;
+
+  const [users, total, verified, admins, suspended] = await Promise.all([
     prisma.user.findMany({
+      where,
+
+      skip,
+      take,
+
       orderBy: {
         createdAt: "desc",
       },
@@ -161,7 +219,9 @@ export const getUsers = async () => {
       },
     }),
 
-    prisma.user.count(),
+    prisma.user.count({
+      where,
+    }),
 
     prisma.user.count({
       where: {
