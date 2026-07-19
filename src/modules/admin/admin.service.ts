@@ -435,3 +435,53 @@ export const getPlaces = async (query: any) => {
     },
   };
 };
+
+export const updatePlaceVerification = async (
+  placeId: string,
+  isVerified: boolean,
+) => {
+  return prisma.place.update({
+    where: {
+      id: placeId,
+    },
+    data: {
+      isVerified,
+    },
+    select: {
+      id: true,
+      name: true,
+      isVerified: true,
+    },
+  });
+};
+
+export const updatePlaceStatus = async (
+  placeId: string,
+  isActive: boolean,
+) => {
+  return prisma.place.update({
+    where: {
+      id: placeId,
+    },
+    data: {
+      isActive,
+    },
+    select: {
+      id: true,
+      name: true,
+      isActive: true,
+    },
+  });
+};
+
+export const deletePlace = async (placeId: string) => {
+  return prisma.place.delete({
+    where: {
+      id: placeId,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+};

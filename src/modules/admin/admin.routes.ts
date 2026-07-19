@@ -8,6 +8,9 @@ import {
   updateAdminUserRole,
   deleteAdminUser,
   getAdminPlaces,
+  updateAdminPlaceVerification,
+  updateAdminPlaceStatus,
+  deleteAdminPlace,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -38,6 +41,24 @@ router.patch(
   authorize("ADMIN"),
   validate(updateUserRoleSchema),
   updateAdminUserRole,
+);
+router.patch(
+  "/places/:id/verification",
+  authenticate,
+  authorize("ADMIN"),
+  updateAdminPlaceVerification,
+);
+router.patch(
+  "/places/:id/status",
+  authenticate,
+  authorize("ADMIN"),
+  updateAdminPlaceStatus,
+);
+router.delete(
+  "/places/:id",
+  authenticate,
+  authorize("ADMIN"),
+  deleteAdminPlace,
 );
 router.delete("/users/:id", authenticate, authorize("ADMIN"), deleteAdminUser);
 

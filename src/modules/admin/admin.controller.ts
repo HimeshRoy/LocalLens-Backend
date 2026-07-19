@@ -8,6 +8,9 @@ import {
   updateUserRole,
   deleteUser,
   getPlaces,
+  updatePlaceStatus,
+  updatePlaceVerification,
+  deletePlace,
 } from "./admin.service.js";
 
 
@@ -123,6 +126,66 @@ export const getAdminPlaces = async (
       true,
       "Places fetched successfully",
       places,
+    ),
+  );
+};
+export const updateAdminPlaceVerification = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { isVerified } = req.body;
+
+  const place = await updatePlaceVerification(
+    id as string,
+    isVerified,
+  );
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "Place verification updated successfully",
+      place,
+    ),
+  );
+};
+
+export const updateAdminPlaceStatus = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { isActive } = req.body;
+
+  const place = await updatePlaceStatus(
+    id as string,
+    isActive,
+  );
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      `Place ${
+        isActive ? "activated" : "deactivated"
+      } successfully`,
+      place,
+    ),
+  );
+};
+
+export const deleteAdminPlace = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  const place = await deletePlace(id as string);
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "Place deleted successfully",
+      place,
     ),
   );
 };
