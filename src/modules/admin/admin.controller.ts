@@ -11,6 +11,7 @@ import {
   updatePlaceStatus,
   updatePlaceVerification,
   deletePlace,
+  getPlaceById,
 } from "./admin.service.js";
 
 
@@ -185,6 +186,21 @@ export const deleteAdminPlace = async (
     new ApiResponse(
       true,
       "Place deleted successfully",
+      place,
+    ),
+  );
+};
+
+export const getAdminPlaceById = async (
+  req: Request,
+  res: Response,
+) => {
+  const place = await getPlaceById(req.params.id as string);
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "Place fetched successfully",
       place,
     ),
   );

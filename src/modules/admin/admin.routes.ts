@@ -11,6 +11,7 @@ import {
   updateAdminPlaceVerification,
   updateAdminPlaceStatus,
   deleteAdminPlace,
+  getAdminPlaceById,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -47,6 +48,12 @@ router.patch(
   authenticate,
   authorize("ADMIN"),
   updateAdminPlaceVerification,
+);
+router.get(
+  "/places/:id",
+  authenticate,
+  authorize("ADMIN"),
+  getAdminPlaceById,
 );
 router.patch(
   "/places/:id/status",

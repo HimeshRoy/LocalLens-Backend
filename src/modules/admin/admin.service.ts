@@ -485,3 +485,57 @@ export const deletePlace = async (placeId: string) => {
     },
   });
 };
+
+export const getPlaceById = async (placeId: string) => {
+  return prisma.place.findUnique({
+    where: {
+      id: placeId,
+    },
+
+    include: {
+      category: true,
+
+      createdBy: {
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+          avatar: true,
+          email: true,
+        },
+      },
+
+      images: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
+      reviews: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
+      _count: {
+        select: {
+          reviews: true,
+          favorites: true,
+          collections: true,
+          images: true,
+        },
+      },
+    },
+  });
+};
