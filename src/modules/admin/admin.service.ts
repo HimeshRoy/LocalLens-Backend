@@ -254,10 +254,7 @@ export const getUsers = async (query: any) => {
   };
 };
 
-export const updateUserStatus = async (
-  userId: string,
-  isActive: boolean
-) => {
+export const updateUserStatus = async (userId: string, isActive: boolean) => {
   return prisma.user.update({
     where: {
       id: userId,
@@ -294,10 +291,7 @@ export const updateUserVerification = async (
   });
 };
 
-export const updateUserRole = async (
-  userId: string,
-  role: UserRole,
-) => {
+export const updateUserRole = async (userId: string, role: UserRole) => {
   return prisma.user.update({
     where: {
       id: userId,
@@ -325,4 +319,119 @@ export const deleteUser = async (userId: string) => {
       username: true,
     },
   });
+};
+
+export const getPlaces = async (query: any) => {
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.min(100, Number(query.limit) || 10);
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.PlaceWhereInput = {
+    ...(query.search && {
+      OR: [
+        {
+          name: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          city: {
+            contains: query.search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+
+    ...(query.categoryId && {
+      categoryId: query.categoryId,
+    }),
+
+    ...(query.status === "ACTIVE" && {
+      isActive: true,
+    }),
+
+    ...(query.status === "INACTIVE" && {
+      isActive: false,
+    }),
+
+    ...(query.status === "PENDING" && {
+      isVerified: false,
+      isActive: true,
+    }),
+
+    ...(query.isVerified !== undefined && {
+      isVerified: query.isVerified === "true",
+    }),
+  };
+
+  const total = await prisma.place.count({
+    where,
+  });
+
+  const places = await prisma.place.findMany({
+    where,
+
+    skip,
+
+    take: limit,
+
+    include: {
+      category: true,
+
+      createdBy: {
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+        },
+      },
+
+      _count: {
+        select: {
+          reviews: true,
+          images: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return {
+    places,
+
+    statistics: {
+      total: await prisma.place.count(),
+
+      verified: await prisma.place.count({
+        where: {
+          isVerified: true,
+        },
+      }),
+
+      pending: await prisma.place.count({
+        where: {
+          isVerified: false,
+          isActive: true,
+        },
+      }),
+
+      inactive: await prisma.place.count({
+        where: {
+          isActive: false,
+        },
+      }),
+    },
+
+    pagination: {
+      page,
+      limit,
+      totalItems: total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };

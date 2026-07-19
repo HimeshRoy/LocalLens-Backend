@@ -7,7 +7,9 @@ import {
   updateUserVerification,
   updateUserRole,
   deleteUser,
+  getPlaces,
 } from "./admin.service.js";
+
 
 export const getAdminDashboard = async (_req: Request, res: Response) => {
   const dashboard = await getDashboard();
@@ -106,6 +108,21 @@ export const deleteAdminUser = async (
       true,
       "User deleted successfully",
       user,
+    ),
+  );
+};
+
+export const getAdminPlaces = async (
+  req: Request,
+  res: Response,
+) => {
+  const places = await getPlaces(req.query);
+
+  res.status(200).json(
+    new ApiResponse(
+      true,
+      "Places fetched successfully",
+      places,
     ),
   );
 };

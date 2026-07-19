@@ -7,6 +7,7 @@ import {
   updateAdminUserVerification,
   updateAdminUserRole,
   deleteAdminUser,
+  getAdminPlaces,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -18,6 +19,7 @@ const router = Router();
 
 router.get("/dashboard", authenticate, authorize("ADMIN"), getAdminDashboard);
 router.get("/users", authenticate, authorize("ADMIN"), getAdminUsers);
+router.get("/places", authenticate, authorize("ADMIN"), getAdminPlaces);
 router.patch(
   "/users/:id/status",
   authenticate,
