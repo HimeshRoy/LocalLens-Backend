@@ -4,7 +4,7 @@ import { verifyToken } from "../utils/jwt.js";
 export const authenticate = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization;
 
@@ -24,12 +24,27 @@ export const authenticate = (
 
   const token = authHeader.split(" ")[1];
 
-  const decoded = verifyToken(token);
+  try {
+    const decoded = verifyToken(token);
 
+    req.user = decoded;
 
-  req.user = decoded;
+    console.log("Authenticated User:", req.user);
 
-  console.log("Authenticated User:", req.user);
+    next();
+  } catch (error: any) {
+    console.error("Authentication Error:", error.message);
 
-  next();
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please log in again.",
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token.",
+    });
+  }
 };
