@@ -13,6 +13,7 @@ import aiRoutes from "../modules/ai/ai.routes.js";
 import locationRoutes from "../modules/location/location.routes.js";
 import feedRoutes from "../modules/feed/feed.routes.js";
 import adminRoutes from "../modules/admin/admin.routes.js";
+import verificationRequestRoutes from "../modules/verification-request/verification-request.routes.js";
 
 const router = Router();
 
@@ -30,6 +31,7 @@ router.use("/places", placeImageRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/favorites", favoriteRoutes);
 router.use("/business-claims", businessClaimRoutes);
+router.use("/api/v1/verification-requests", verificationRequestRoutes);
 router.use("/collections", collectionRoutes);
 router.use("/users", userRoutes);
 router.use("/location", locationRoutes);

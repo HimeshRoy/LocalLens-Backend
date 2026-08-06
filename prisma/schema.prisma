@@ -49,32 +49,39 @@ enum InterestType {
   PRICE_RANGE
 }
 
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id              String           @id @default(cuid())
-  fullName        String
-  email           String           @unique
-  password        String
-  avatar          String?
-  role            UserRole         @default(USER)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  bio             String?
-  city            String?
-  country         String?
-  places          Place[]
-  uploadedImages  PlaceImage[]
-  reviews         Review[]
-  favorites       Favorite[]
-  businessClaims  BusinessClaim[]
-  collections     Collection[]
-  activities      UserActivity[]
-  searches        UserSearch[]
-  interests       UserInterest[]
-  isActive        Boolean          @default(true)
-  isVerified      Boolean          @default(false)
-  isPrivate Boolean @default(false)
-  username        String           @unique
-  aiConversations AiConversation[]
+  id                   String                @id @default(cuid())
+  fullName             String
+  email                String                @unique
+  password             String
+  avatar               String?
+  role                 UserRole              @default(USER)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  bio                  String?
+  city                 String?
+  country              String?
+  places               Place[]
+  uploadedImages       PlaceImage[]
+  reviews              Review[]
+  favorites            Favorite[]
+  businessClaims       BusinessClaim[]
+  verificationRequests VerificationRequest[]
+  collections          Collection[]
+  activities           UserActivity[]
+  searches             UserSearch[]
+  interests            UserInterest[]
+  isActive             Boolean               @default(true)
+  isVerified           Boolean               @default(false)
+  isPrivate            Boolean               @default(false)
+  username             String                @unique
+  aiConversations      AiConversation[]
 }
 
 model Category {
@@ -257,6 +264,31 @@ model CollectionPlace {
   place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
   @@unique([collectionId, placeId])
+}
+
+model VerificationRequest {
+  id String @id @default(cuid())
+
+  userId String
+
+  reason String?
+
+  documentUrl      String
+  documentPublicId String
+
+  selfieUrl      String?
+  selfiePublicId String?
+
+  status VerificationStatus @default(PENDING)
+
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model UserActivity {
