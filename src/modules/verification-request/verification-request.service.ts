@@ -1,10 +1,15 @@
 import { prisma } from "../../config/prisma.js";
 import type { ServiceResponse } from "../../types/service-response.js";
 import type { CreateVerificationRequestInput } from "./verification-request.types.js";
+import { uploadImage } from "../../services/cloudinary.service.js";
 
 export const createVerificationRequest = async (
   userId: string,
   payload: CreateVerificationRequestInput,
+  files: {
+    document?: Express.Multer.File[];
+    selfie?: Express.Multer.File[];
+  },
 ): Promise<ServiceResponse<any>> => {
   const user = await prisma.user.findUnique({
     where: {
@@ -36,10 +41,35 @@ export const createVerificationRequest = async (
     };
   }
 
+  const documentFile = files.document?.[0];
+  const selfieFile = files.selfie?.[0];
+
+  if (!documentFile) {
+    return {
+      success: false,
+      message: "Government ID is required.",
+      data: null,
+    };
+  }
+
+  const [documentUpload, selfieUpload] = await Promise.all([
+    uploadImage(documentFile, "locallens/verification/documents"),
+    selfieFile
+      ? uploadImage(selfieFile, "locallens/verification/selfies")
+      : Promise.resolve(undefined),
+  ]);
+
   const request = await prisma.verificationRequest.create({
     data: {
       userId,
-      ...payload,
+
+      reason: payload.reason,
+
+      documentUrl: documentUpload.imageUrl,
+      documentPublicId: documentUpload.publicId,
+
+      selfieUrl: selfieUpload?.imageUrl,
+      selfiePublicId: selfieUpload?.publicId,
     },
   });
 

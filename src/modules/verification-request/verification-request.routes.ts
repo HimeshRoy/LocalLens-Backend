@@ -3,6 +3,7 @@ import { authenticate } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/authorize.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { UserRole } from "@prisma/client";
+import { upload } from "../../middlewares/upload.middleware.js";
 
 import {
   create,
@@ -19,6 +20,16 @@ const router = Router();
 router.post(
   "/",
   authenticate,
+  upload.fields([
+    {
+      name: "document",
+      maxCount: 1,
+    },
+    {
+      name: "selfie",
+      maxCount: 1,
+    },
+  ]),
   validate(createVerificationRequestSchema),
   create,
 );
