@@ -31,7 +31,7 @@ router.use("/places", placeImageRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/favorites", favoriteRoutes);
 router.use("/business-claims", businessClaimRoutes);
-router.use("/api/v1/verification-requests", verificationRequestRoutes);
+router.use("/verification-requests", verificationRequestRoutes);
 router.use("/collections", collectionRoutes);
 router.use("/users", userRoutes);
 router.use("/location", locationRoutes);
