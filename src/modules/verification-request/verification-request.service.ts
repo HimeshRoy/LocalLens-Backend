@@ -234,3 +234,40 @@ export const rejectVerificationRequest = async (
     data: updatedRequest,
   };
 };
+
+export const getVerificationRequestById = async (
+  id: string,
+): Promise<ServiceResponse<any>> => {
+  const request = await prisma.verificationRequest.findUnique({
+    where: {
+      id,
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+          email: true,
+          avatar: true,
+          isVerified: true,
+        },
+      },
+    },
+  });
+
+  if (!request) {
+    return {
+      success: false,
+      message: "Verification request not found",
+      data: null,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Verification request fetched successfully",
+    data: request,
+  };
+};

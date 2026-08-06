@@ -8,6 +8,7 @@ import {
   getAllVerificationRequests,
   approveVerificationRequest,
   rejectVerificationRequest,
+  getVerificationRequestById,
 } from "./verification-request.service.js";
 
 export const create = async (req: Request, res: Response): Promise<void> => {
@@ -67,6 +68,25 @@ export const reject = async (req: Request, res: Response): Promise<void> => {
   const statusCode = result.success ? 200 : 400;
 
   const response = new ApiResponse(result.success, result.message, result.data);
+
+  res.status(statusCode).json(response);
+};
+
+export const getById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  const result = await getVerificationRequestById(id as string);
+
+  const statusCode = result.success ? 200 : 404;
+
+  const response = new ApiResponse(
+    result.success,
+    result.message,
+    result.data,
+  );
 
   res.status(statusCode).json(response);
 };
