@@ -36,7 +36,10 @@ export const createVerificationRequest = async (
     },
   });
 
-  if (approvedPlaces < VERIFICATION_REQUIREMENTS.approvedPlaces || reviewsCount < VERIFICATION_REQUIREMENTS.reviews) {
+  if (
+    approvedPlaces < VERIFICATION_REQUIREMENTS.approvedPlaces ||
+    reviewsCount < VERIFICATION_REQUIREMENTS.reviews
+  ) {
     return {
       success: false,
       message:
@@ -250,6 +253,13 @@ export const getVerificationRequestById = async (
           email: true,
           avatar: true,
           isVerified: true,
+          createdAt: true,
+
+          _count: {
+            select: {
+              reviews: true,
+            },
+          },
         },
       },
     },
@@ -263,10 +273,28 @@ export const getVerificationRequestById = async (
     };
   }
 
+  const approvedPlaces = await prisma.place.count({
+    where: {
+      createdById: request.user.id,
+      status: PlaceStatus.APPROVED,
+      isActive: true,
+    },
+  });
+
   return {
     success: true,
     message: "Verification request fetched successfully",
-    data: request,
+    data: {
+      ...request,
+
+      approvedPlaces,
+
+      reviewsCount: request.user._count.reviews,
+
+      eligible:
+        approvedPlaces >= VERIFICATION_REQUIREMENTS.approvedPlaces &&
+        request.user._count.reviews >= VERIFICATION_REQUIREMENTS.reviews,
+    },
   };
 };
 
@@ -323,17 +351,13 @@ export const getVerificationEligibility = async (
       approvedPlaces,
       reviewsCount,
 
-      requiredPlaces:
-        VERIFICATION_REQUIREMENTS.approvedPlaces,
+      requiredPlaces: VERIFICATION_REQUIREMENTS.approvedPlaces,
 
-      requiredReviews:
-        VERIFICATION_REQUIREMENTS.reviews,
+      requiredReviews: VERIFICATION_REQUIREMENTS.reviews,
 
       eligible:
-        approvedPlaces >=
-          VERIFICATION_REQUIREMENTS.approvedPlaces &&
-        reviewsCount >=
-          VERIFICATION_REQUIREMENTS.reviews,
+        approvedPlaces >= VERIFICATION_REQUIREMENTS.approvedPlaces &&
+        reviewsCount >= VERIFICATION_REQUIREMENTS.reviews,
     },
   };
 };
