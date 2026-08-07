@@ -24,7 +24,7 @@ export const createVerificationRequest = async (
   const approvedPlaces = await prisma.place.count({
     where: {
       createdById: userId,
-      status: "APPROVED",
+      status: ClaimStatus.APPROVED,
       isActive: true,
     },
   });
@@ -56,7 +56,7 @@ export const createVerificationRequest = async (
   const existingRequest = await prisma.verificationRequest.findFirst({
     where: {
       userId,
-      status: "PENDING",
+      status: ClaimStatus.PENDING,
     },
   });
 
@@ -101,34 +101,64 @@ export const getMyVerificationRequests = async (
   };
 };
 
-export const getAllVerificationRequests = async (): Promise<
-  ServiceResponse<any>
-> => {
-  const requests = await prisma.verificationRequest.findMany({
-    include: {
-      user: {
-        select: {
-          id: true,
-          fullName: true,
-          username: true,
-          email: true,
-          avatar: true,
-          isVerified: true,
+export const getAllVerificationRequests =
+  async (): Promise<ServiceResponse<any>> => {
+    const requests = await prisma.verificationRequest.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            email: true,
+            avatar: true,
+            isVerified: true,
+            createdAt: true,
+
+            _count: {
+              select: {
+                reviews: true,
+              },
+            },
+          },
         },
       },
-    },
 
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  return {
-    success: true,
-    message: "Verification requests fetched successfully",
-    data: requests,
+    const requestsWithStats = await Promise.all(
+      requests.map(async (request) => {
+        const approvedPlaces = await prisma.place.count({
+          where: {
+            createdById: request.user.id,
+            status: PlaceStatus.APPROVED,
+            isActive: true,
+          },
+        });
+
+        return {
+          ...request,
+
+          approvedPlaces,
+
+          reviewsCount: request.user._count.reviews,
+
+          eligible:
+            approvedPlaces >= VERIFICATION_REQUIREMENTS.approvedPlaces &&
+            request.user._count.reviews >= VERIFICATION_REQUIREMENTS.reviews,
+        };
+      }),
+    );
+
+    return {
+      success: true,
+      message: "Verification requests fetched successfully",
+      data: requestsWithStats,
+    };
   };
-};
 
 export const approveVerificationRequest = async (
   requestId: string,
@@ -147,7 +177,7 @@ export const approveVerificationRequest = async (
     };
   }
 
-  if (request.status !== "PENDING") {
+  if (request.status !== ClaimStatus.PENDING) {
     return {
       success: false,
       message: "This verification request has already been processed",
@@ -161,7 +191,7 @@ export const approveVerificationRequest = async (
         id: requestId,
       },
       data: {
-        status: "APPROVED",
+        status: ClaimStatus.APPROVED,
       },
     });
 
@@ -180,10 +210,10 @@ export const approveVerificationRequest = async (
         id: {
           not: requestId,
         },
-        status: "PENDING",
+        status: ClaimStatus.PENDING,
       },
       data: {
-        status: "REJECTED",
+        status: ClaimStatus.REJECTED,
       },
     });
   });
@@ -212,7 +242,7 @@ export const rejectVerificationRequest = async (
     };
   }
 
-  if (request.status !== "PENDING") {
+  if (request.status !== ClaimStatus.PENDING) {
     return {
       success: false,
       message: "This verification request has already been processed",
@@ -225,7 +255,7 @@ export const rejectVerificationRequest = async (
       id: requestId,
     },
     data: {
-      status: "REJECTED",
+      status: ClaimStatus.REJECTED,
     },
   });
 
@@ -322,14 +352,14 @@ export const getVerificationEligibility = async (
   const existingRequest = await prisma.verificationRequest.findFirst({
     where: {
       userId,
-      status: "PENDING",
+      status: ClaimStatus.PENDING,
     },
   });
 
   const approvedPlaces = await prisma.place.count({
     where: {
       createdById: userId,
-      status: "APPROVED",
+      status: ClaimStatus.APPROVED,
       isActive: true,
     },
   });
