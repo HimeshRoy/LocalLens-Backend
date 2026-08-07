@@ -14,14 +14,7 @@ import {
 export const create = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user.userId;
 
-  const result = await createVerificationRequest(
-    userId,
-    req.body,
-    req.files as {
-      document?: Express.Multer.File[];
-      selfie?: Express.Multer.File[];
-    },
-  );
+  const result = await createVerificationRequest(userId);
 
   const statusCode = result.success ? 201 : 400;
 

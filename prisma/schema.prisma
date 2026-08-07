@@ -271,17 +271,7 @@ model VerificationRequest {
 
   userId String
 
-  reason String?
-
-  documentUrl      String
-  documentPublicId String
-
-  selfieUrl      String?
-  selfiePublicId String?
-
-  status VerificationStatus @default(PENDING)
-
-  rejectionReason String?
+  status ClaimStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -289,6 +279,7 @@ model VerificationRequest {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([status])
 }
 
 model UserActivity {
