@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { VERIFICATION_REQUIREMENTS } from "../../constants/verification.js";
 import type { ServiceResponse } from "../../types/service-response.js";
+import { ClaimStatus, PlaceStatus } from "@prisma/client";
 
 export const createVerificationRequest = async (
   userId: string,

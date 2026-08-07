@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PlaceStatus } from "@prisma/client";
 import { prisma } from "../../config/prisma.js";
 import { uploadImage } from "../../services/cloudinary.service.js";
 import { generateSlug, generateUniqueSlug } from "../../utils/slug.js";
@@ -50,6 +50,7 @@ export const createPlace = async (
       ...payload,
       slug,
       createdById: userId,
+      status: PlaceStatus.PENDING,
     },
 
     include: {
@@ -79,6 +80,9 @@ export const getPlaces = async (query: GetPlacesQuery) => {
 
   const where: Prisma.PlaceWhereInput = {
     isActive: true,
+    status: {
+      not: PlaceStatus.REJECTED,
+    },
 
     ...(query.city && {
       city: {
@@ -190,6 +194,9 @@ export const getPlaceById = async (id: string, userId?: string) => {
     where: {
       id,
       isActive: true,
+      status: {
+        not: PlaceStatus.REJECTED,
+      },
     },
 
     include: {
@@ -528,6 +535,9 @@ export const getPlaceBySlug = async (slug: string) => {
   return prisma.place.findUnique({
     where: {
       slug,
+      status: {
+        not: PlaceStatus.REJECTED,
+      },
     },
     include: {
       createdBy: {

@@ -134,6 +134,7 @@ model Place {
   averageRating Float @default(0)
 
   totalReviews Int @default(0)
+  
   status PlaceStatus @default(PENDING)
 
   isVerified Boolean @default(false)

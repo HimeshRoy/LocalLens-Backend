@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { Prisma, UserRole } from "@prisma/client";
+import { PlaceStatus } from "@prisma/client";
 
 export const getDashboard = async () => {
   const [
@@ -11,7 +12,9 @@ export const getDashboard = async () => {
     collections,
     categories,
     tags,
-    verifiedPlaces,
+    approvedPlaces,
+    pendingPlaces,
+    rejectedPlaces,
     pendingClaims,
     recentUsers,
     recentPlaces,
@@ -39,7 +42,19 @@ export const getDashboard = async () => {
 
     prisma.place.count({
       where: {
-        isVerified: true,
+        status: PlaceStatus.APPROVED,
+      },
+    }),
+
+    prisma.place.count({
+      where: {
+        status: PlaceStatus.PENDING,
+      },
+    }),
+
+    prisma.place.count({
+      where: {
+        status: PlaceStatus.REJECTED,
       },
     }),
 
@@ -115,7 +130,11 @@ export const getDashboard = async () => {
       collections,
       categories,
       tags,
-      verifiedPlaces,
+
+      approvedPlaces,
+      pendingPlaces,
+      rejectedPlaces,
+
       pendingClaims,
     },
 
@@ -348,21 +367,24 @@ export const getPlaces = async (query: any) => {
       categoryId: query.categoryId,
     }),
 
+    ...(query.status === "PENDING" && {
+      status: PlaceStatus.PENDING,
+    }),
+
+    ...(query.status === "APPROVED" && {
+      status: PlaceStatus.APPROVED,
+    }),
+
+    ...(query.status === "REJECTED" && {
+      status: PlaceStatus.REJECTED,
+    }),
+
     ...(query.status === "ACTIVE" && {
       isActive: true,
     }),
 
     ...(query.status === "INACTIVE" && {
       isActive: false,
-    }),
-
-    ...(query.status === "PENDING" && {
-      isVerified: false,
-      isActive: true,
-    }),
-
-    ...(query.isVerified !== undefined && {
-      isVerified: query.isVerified === "true",
     }),
   };
 
@@ -407,16 +429,21 @@ export const getPlaces = async (query: any) => {
     statistics: {
       total: await prisma.place.count(),
 
-      verified: await prisma.place.count({
+      approved: await prisma.place.count({
         where: {
-          isVerified: true,
+          status: PlaceStatus.APPROVED,
         },
       }),
 
       pending: await prisma.place.count({
         where: {
-          isVerified: false,
-          isActive: true,
+          status: PlaceStatus.PENDING,
+        },
+      }),
+
+      rejected: await prisma.place.count({
+        where: {
+          status: PlaceStatus.REJECTED,
         },
       }),
 
@@ -436,29 +463,43 @@ export const getPlaces = async (query: any) => {
   };
 };
 
-export const updatePlaceVerification = async (
-  placeId: string,
-  isVerified: boolean,
-) => {
+export const approvePlace = async (placeId: string) => {
   return prisma.place.update({
     where: {
       id: placeId,
     },
+
     data: {
-      isVerified,
+      status: PlaceStatus.APPROVED,
     },
+
     select: {
       id: true,
       name: true,
-      isVerified: true,
+      status: true,
     },
   });
 };
 
-export const updatePlaceStatus = async (
-  placeId: string,
-  isActive: boolean,
-) => {
+export const rejectPlace = async (placeId: string) => {
+  return prisma.place.update({
+    where: {
+      id: placeId,
+    },
+
+    data: {
+      status: PlaceStatus.REJECTED,
+    },
+
+    select: {
+      id: true,
+      name: true,
+      status: true,
+    },
+  });
+};
+
+export const updatePlaceStatus = async (placeId: string, isActive: boolean) => {
   return prisma.place.update({
     where: {
       id: placeId,

@@ -8,10 +8,11 @@ import {
   updateAdminUserRole,
   deleteAdminUser,
   getAdminPlaces,
-  updateAdminPlaceVerification,
   updateAdminPlaceStatus,
   deleteAdminPlace,
   getAdminPlaceById,
+  approvePlaceController,
+  rejectPlaceController,
 } from "./admin.controller.js";
 
 import { authenticate } from "../../middlewares/auth.middleware.js";
@@ -44,17 +45,19 @@ router.patch(
   updateAdminUserRole,
 );
 router.patch(
-  "/places/:id/verification",
+  "/places/:id/approve",
   authenticate,
   authorize("ADMIN"),
-  updateAdminPlaceVerification,
+  approvePlaceController,
 );
-router.get(
-  "/places/:id",
+
+router.patch(
+  "/places/:id/reject",
   authenticate,
   authorize("ADMIN"),
-  getAdminPlaceById,
+  rejectPlaceController,
 );
+router.get("/places/:id", authenticate, authorize("ADMIN"), getAdminPlaceById);
 router.patch(
   "/places/:id/status",
   authenticate,
