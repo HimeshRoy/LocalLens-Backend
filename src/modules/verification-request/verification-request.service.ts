@@ -268,3 +268,71 @@ export const getVerificationRequestById = async (
     data: request,
   };
 };
+
+export const getVerificationEligibility = async (
+  userId: string,
+): Promise<ServiceResponse<any>> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+      isActive: true,
+    },
+    select: {
+      isVerified: true,
+    },
+  });
+
+  if (!user) {
+    return {
+      success: false,
+      message: "User not found",
+      data: null,
+    };
+  }
+
+  const existingRequest = await prisma.verificationRequest.findFirst({
+    where: {
+      userId,
+      status: "PENDING",
+    },
+  });
+
+  const approvedPlaces = await prisma.place.count({
+    where: {
+      createdById: userId,
+      status: "APPROVED",
+      isActive: true,
+    },
+  });
+
+  const reviewsCount = await prisma.review.count({
+    where: {
+      userId,
+      isActive: true,
+    },
+  });
+
+  return {
+    success: true,
+    message: "Verification eligibility fetched successfully",
+    data: {
+      isVerified: user.isVerified,
+      alreadyApplied: !!existingRequest,
+
+      approvedPlaces,
+      reviewsCount,
+
+      requiredPlaces:
+        VERIFICATION_REQUIREMENTS.approvedPlaces,
+
+      requiredReviews:
+        VERIFICATION_REQUIREMENTS.reviews,
+
+      eligible:
+        approvedPlaces >=
+          VERIFICATION_REQUIREMENTS.approvedPlaces &&
+        reviewsCount >=
+          VERIFICATION_REQUIREMENTS.reviews,
+    },
+  };
+};

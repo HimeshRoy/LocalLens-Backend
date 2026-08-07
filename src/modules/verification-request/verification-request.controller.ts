@@ -9,6 +9,7 @@ import {
   approveVerificationRequest,
   rejectVerificationRequest,
   getVerificationRequestById,
+  getVerificationEligibility,
 } from "./verification-request.service.js";
 
 export const create = async (req: Request, res: Response): Promise<void> => {
@@ -82,4 +83,21 @@ export const getById = async (
   );
 
   res.status(statusCode).json(response);
+};
+
+export const getEligibility = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const result = await getVerificationEligibility(
+    req.user.userId,
+  );
+
+  const response = new ApiResponse(
+    result.success,
+    result.message,
+    result.data,
+  );
+
+  res.status(200).json(response);
 };
