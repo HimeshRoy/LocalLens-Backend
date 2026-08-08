@@ -552,3 +552,50 @@ export const getPlaceBySlug = async (slug: string) => {
     },
   });
 };
+
+export const getPublicPlaces = async () => {
+  const places = await prisma.place.findMany({
+    where: {
+      isActive: true,
+      status: PlaceStatus.APPROVED,
+    },
+
+    take: 12,
+
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      address: true,
+      city: true,
+      state: true,
+      country: true,
+      latitude: true,
+      longitude: true,
+      priceRange: true,
+      coverImage: true,
+      averageRating: true,
+      totalReviews: true,
+      isVerified: true,
+
+      category: {
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return {
+    success: true,
+    message: "Public places fetched successfully",
+    data: places,
+  };
+};

@@ -13,7 +13,19 @@ app.use(helmet());
 
 app.use(morgan("dev"));
 
-app.use(cors());
+const allowedOrigins = [
+  "https://locallensai.in",
+  "https://web.locallensai.in",
+  "http://localhost:3000",
+  "http://localhost:5173/",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 

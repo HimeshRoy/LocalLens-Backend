@@ -9,6 +9,7 @@ import {
   uploadCover,
   getNearby,
   getBySlug,
+  getPublic,
 } from "./place.controller.js";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
@@ -23,6 +24,7 @@ const router = Router();
 
 router.post("/", authenticate, validate(createPlaceSchema), create);
 router.get("/", getAll);
+router.get("/public", getPublic);
 router.get("/nearby", validate(nearbyPlacesSchema), getNearby);
 router.get("/slug/:slug", getBySlug);
 router.get("/:id", getById);

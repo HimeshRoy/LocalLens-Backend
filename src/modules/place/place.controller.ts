@@ -9,6 +9,7 @@ import {
   uploadPlaceCover,
   getNearbyPlaces,
   getPlaceBySlug,
+  getPublicPlaces,
 } from "./place.service.js";
 import * as placeService from "./place.service.js";
 
@@ -274,5 +275,29 @@ export const getBySlug = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getPublic = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = await getPublicPlaces();
+
+    const response = new ApiResponse(
+      result.success,
+      result.message,
+      result.data,
+    );
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
