@@ -13,6 +13,12 @@ export interface LocationSearchResult {
   longitude: number;
 }
 
+export interface DirectionsResult {
+  coordinates: [number, number][];
+  distance: number;
+  duration: number;
+}
+
 const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY;
 
 export const reverseGeocode = async (
@@ -20,7 +26,9 @@ export const reverseGeocode = async (
   longitude: number
 ): Promise<ReverseGeocodeResult> => {
   if (!LOCATIONIQ_API_KEY) {
-    throw new Error("LOCATIONIQ_API_KEY is not configured in environment variables.");
+    throw new Error(
+      "LOCATIONIQ_API_KEY is not configured in environment variables."
+    );
   }
 
   const response = await fetch(
@@ -47,9 +55,7 @@ export const reverseGeocode = async (
       address.hamlet ||
       address.suburb ||
       "",
-
     state: address.state || "",
-
     country: address.country || "",
   };
 };
@@ -58,7 +64,9 @@ export const searchLocation = async (
   query: string
 ): Promise<LocationSearchResult[]> => {
   if (!LOCATIONIQ_API_KEY) {
-    throw new Error("LOCATIONIQ_API_KEY is not configured in environment variables.");
+    throw new Error(
+      "LOCATIONIQ_API_KEY is not configured in environment variables."
+    );
   }
 
   const response = await fetch(
@@ -96,4 +104,53 @@ export const searchLocation = async (
       longitude: Number(item.lon),
     };
   });
+};
+
+export const getDirections = async (
+  startLat: number,
+  startLng: number,
+  destinationLat: number,
+  destinationLng: number
+): Promise<DirectionsResult> => {
+  if (!LOCATIONIQ_API_KEY) {
+    throw new Error(
+      "LOCATIONIQ_API_KEY is not configured in environment variables."
+    );
+  }
+
+  const response = await fetch(
+    `https://us1.locationiq.com/v1/directions/driving/${startLng},${startLat};${destinationLng},${destinationLat}?key=${LOCATIONIQ_API_KEY}&geometries=geojson&overview=full`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    console.error("LocationIQ Directions Error:", errorText);
+
+    throw new Error("Failed to fetch directions from LocationIQ.");
+  }
+
+  const data = await response.json();
+
+  if (!data.routes || data.routes.length === 0) {
+    throw new Error("No route found.");
+  }
+
+  const route = data.routes[0];
+
+  const coordinates =
+    route.geometry?.coordinates?.map(
+      (coordinate: [number, number]) => coordinate
+    ) ?? [];
+
+  return {
+    coordinates,
+    distance: Number(route.distance ?? 0),
+    duration: Number(route.duration ?? 0),
+  };
 };

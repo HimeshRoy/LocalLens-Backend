@@ -6,10 +6,10 @@ export const calculateDistance = (
 ): number => {
   const toRadians = (degree: number) => degree * (Math.PI / 180);
 
-  const R = 6371;
+  const R = 6371; // earth radius
 
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
+  const dLat = toRadians(lat2 - lat1); // delta latitude
+  const dLon = toRadians(lon2 - lon1); // delta longitude
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
