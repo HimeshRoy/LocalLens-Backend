@@ -120,27 +120,40 @@ export const getDirections = async (
     );
   }
 
-  const response = await fetch(
-    `https://us1.locationiq.com/v1/directions/driving/${startLng},${startLat};${destinationLng},${destinationLat}?key=${LOCATIONIQ_API_KEY}&geometries=geojson&overview=full`,
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    },
+  const url =
+    `https://us1.locationiq.com/v1/directions/driving/` +
+    `${startLng},${startLat};${destinationLng},${destinationLat}` +
+    `?key=${LOCATIONIQ_API_KEY}` +
+    `&overview=full` +
+    `&geometries=geojson`;
+
+  console.log(
+    "LocationIQ Directions URL:",
+    url.replace(LOCATIONIQ_API_KEY, "***"),
   );
 
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  const responseText = await response.text();
+
+  console.log("LocationIQ Directions Status:", response.status);
+
+  console.log("LocationIQ Directions Response:", responseText);
+
   if (!response.ok) {
-    const errorText = await response.text();
-
-    console.error("LocationIQ Directions Error:", errorText);
-
-    throw new Error("Failed to fetch directions from LocationIQ.");
+    throw new Error(
+      `LocationIQ Directions failed with status ${response.status}: ${responseText}`,
+    );
   }
 
-  const data = await response.json();
+  const data = JSON.parse(responseText);
 
   if (!data.routes || data.routes.length === 0) {
-    throw new Error("No route found.");
+    throw new Error("LocationIQ returned no routes.");
   }
 
   const route = data.routes[0];
