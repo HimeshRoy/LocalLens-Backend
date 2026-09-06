@@ -141,8 +141,13 @@ export const getDirections = async (
   const responseText = await response.text();
 
   console.log("LocationIQ Directions Status:", response.status);
-
   console.log("LocationIQ Directions Response:", responseText);
+
+  if (response.status === 429) {
+    throw new Error(
+      "LocationIQ rate limit reached. Please wait a moment and try again.",
+    );
+  }
 
   if (!response.ok) {
     throw new Error(
