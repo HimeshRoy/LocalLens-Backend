@@ -77,6 +77,7 @@ export const createReview = async (
             id: true,
             fullName: true,
             username: true,
+            avatar: true,
           },
         },
         place: {
@@ -119,6 +120,7 @@ export const createReview = async (
           id: true,
           fullName: true,
           username: true,
+          avatar: true,
         },
       },
 
@@ -175,6 +177,7 @@ export const getPlaceReviews = async (placeId: string) => {
           id: true,
           fullName: true,
           username: true,
+          avatar: true,
         },
       },
     },
@@ -253,9 +256,9 @@ export const updateReview = async (
           id: true,
           fullName: true,
           username: true,
+          avatar: true,
         },
       },
-
       place: {
         select: {
           id: true,
@@ -313,6 +316,7 @@ export const deleteReview = async (
           id: true,
           fullName: true,
           username: true,
+          avatar: true,
         },
       },
       place: {
