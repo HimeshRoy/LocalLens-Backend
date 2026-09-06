@@ -113,7 +113,7 @@ export const directions = async (
 
 export const mapTile = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const z = Number(req.params.z);
@@ -129,7 +129,6 @@ export const mapTile = async (
         success: false,
         message: "Invalid tile coordinates.",
       });
-
       return;
     }
 

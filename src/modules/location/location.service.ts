@@ -242,27 +242,44 @@ export const fetchMapTile = async (
     `https://${subdomain}-tiles.locationiq.com/v3/streets/r/` +
     `${z}/${x}/${y}.png?key=${LOCATIONIQ_API_KEY}`;
 
-  const response = await fetch(url);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "image/png,image/*",
+        "User-Agent": "LocalLens/1.0",
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      "Failed to fetch map tile.",
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      console.error(
+        "LocationIQ Tile Error:",
+        response.status,
+        errorText,
+      );
+
+      res.status(response.status).send(errorText);
+      return;
+    }
+
+    const buffer = Buffer.from(
+      await response.arrayBuffer(),
     );
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader(
+      "Cache-Control",
+      "public, max-age=86400",
+    );
+
+    res.status(200).send(buffer);
+  } catch (error) {
+    console.error("Map Tile Fetch Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch map tile.",
+    });
   }
-
-  const buffer = Buffer.from(
-    await response.arrayBuffer(),
-  );
-
-  res.setHeader(
-    "Content-Type",
-    "image/png",
-  );
-
-  res.setHeader(
-    "Cache-Control",
-    "public, max-age=86400",
-  );
-
-  res.send(buffer);
 };
