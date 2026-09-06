@@ -3,6 +3,7 @@ import {
   reverseGeocode,
   searchLocation,
   getDirections,
+  fetchMapTile,
 } from "./location.service.js";
 
 export const getCurrentLocation = async (req: Request, res: Response) => {
@@ -106,6 +107,39 @@ export const directions = async (
     res.status(500).json({
       success: false,
       message: "Failed to fetch directions.",
+    });
+  }
+};
+
+export const mapTile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const z = Number(req.params.z);
+    const x = Number(req.params.x);
+    const y = Number(req.params.y);
+
+    if (
+      !Number.isInteger(z) ||
+      !Number.isInteger(x) ||
+      !Number.isInteger(y)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid tile coordinates.",
+      });
+
+      return;
+    }
+
+    await fetchMapTile(z, x, y, res);
+  } catch (error) {
+    console.error("Map Tile Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to load map tile.",
     });
   }
 };

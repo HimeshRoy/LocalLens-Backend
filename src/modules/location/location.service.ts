@@ -1,3 +1,5 @@
+import { Response } from "express";
+
 export interface ReverseGeocodeResult {
   city: string;
   state: string;
@@ -23,11 +25,11 @@ const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY;
 
 export const reverseGeocode = async (
   latitude: number,
-  longitude: number
+  longitude: number,
 ): Promise<ReverseGeocodeResult> => {
   if (!LOCATIONIQ_API_KEY) {
     throw new Error(
-      "LOCATIONIQ_API_KEY is not configured in environment variables."
+      "LOCATIONIQ_API_KEY is not configured in environment variables.",
     );
   }
 
@@ -37,7 +39,7 @@ export const reverseGeocode = async (
       headers: {
         Accept: "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -61,23 +63,23 @@ export const reverseGeocode = async (
 };
 
 export const searchLocation = async (
-  query: string
+  query: string,
 ): Promise<LocationSearchResult[]> => {
   if (!LOCATIONIQ_API_KEY) {
     throw new Error(
-      "LOCATIONIQ_API_KEY is not configured in environment variables."
+      "LOCATIONIQ_API_KEY is not configured in environment variables.",
     );
   }
 
   const response = await fetch(
     `https://api.locationiq.com/v1/autocomplete?key=${LOCATIONIQ_API_KEY}&q=${encodeURIComponent(
-      query
+      query,
     )}&limit=5&format=json&addressdetails=1`,
     {
       headers: {
         Accept: "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -110,11 +112,11 @@ export const getDirections = async (
   startLat: number,
   startLng: number,
   destinationLat: number,
-  destinationLng: number
+  destinationLng: number,
 ): Promise<DirectionsResult> => {
   if (!LOCATIONIQ_API_KEY) {
     throw new Error(
-      "LOCATIONIQ_API_KEY is not configured in environment variables."
+      "LOCATIONIQ_API_KEY is not configured in environment variables.",
     );
   }
 
@@ -124,7 +126,7 @@ export const getDirections = async (
       headers: {
         Accept: "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -145,7 +147,7 @@ export const getDirections = async (
 
   const coordinates =
     route.geometry?.coordinates?.map(
-      (coordinate: [number, number]) => coordinate
+      (coordinate: [number, number]) => coordinate,
     ) ?? [];
 
   return {
@@ -153,4 +155,39 @@ export const getDirections = async (
     distance: Number(route.distance ?? 0),
     duration: Number(route.duration ?? 0),
   };
+};
+
+export const fetchMapTile = async (
+  z: number,
+  x: number,
+  y: number,
+  res: Response,
+) => {
+  const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY;
+
+  if (!LOCATIONIQ_API_KEY) {
+    throw new Error(
+      "LOCATIONIQ_API_KEY is not configured in environment variables.",
+    );
+  }
+
+  const subdomains = ["a", "b", "c"];
+  const subdomain = subdomains[(x + y) % subdomains.length];
+
+  const url =
+    `https://${subdomain}-tiles.locationiq.com/v3/streets/r/` +
+    `${z}/${x}/${y}.png?key=${LOCATIONIQ_API_KEY}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch map tile.");
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+
+  res.send(buffer);
 };
