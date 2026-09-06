@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response as ExpressResponse } from "express";
 
 export interface ReverseGeocodeResult {
   city: string;
@@ -22,6 +22,34 @@ export interface DirectionsResult {
 }
 
 const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY;
+
+let lastDirectionsRequest = 0;
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const getDirectionsWithThrottle = async (
+  url: string,
+): Promise<globalThis.Response> => {
+  const minimumInterval = 600;
+
+  const now = Date.now();
+  const elapsed = now - lastDirectionsRequest;
+
+  if (elapsed < minimumInterval) {
+    await wait(minimumInterval - elapsed);
+  }
+
+  lastDirectionsRequest = Date.now();
+
+  return fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
 
 export const reverseGeocode = async (
   latitude: number,
@@ -128,37 +156,50 @@ export const getDirections = async (
     `&geometries=geojson`;
 
   console.log(
-    "LocationIQ Directions URL:",
-    url.replace(LOCATIONIQ_API_KEY, "***"),
+    "LocationIQ Directions Request:",
+    `${startLng},${startLat} -> ${destinationLng},${destinationLat}`,
   );
 
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-  });
+  const response = await getDirectionsWithThrottle(url);
 
   const responseText = await response.text();
 
-  console.log("LocationIQ Directions Status:", response.status);
-  console.log("LocationIQ Directions Response:", responseText);
-
-  if (response.status === 429) {
-    throw new Error(
-      "LocationIQ rate limit reached. Please wait a moment and try again.",
-    );
-  }
+  console.log(
+    "LocationIQ Directions Status:",
+    response.status,
+  );
 
   if (!response.ok) {
+    console.log(
+      "LocationIQ Directions Response:",
+      responseText,
+    );
+
+    if (response.status === 429) {
+      throw new Error(
+        "LocationIQ is temporarily rate limiting directions. Please try again shortly.",
+      );
+    }
+
     throw new Error(
       `LocationIQ Directions failed with status ${response.status}: ${responseText}`,
     );
   }
 
-  const data = JSON.parse(responseText);
+  let data: any;
+
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      "LocationIQ returned an invalid directions response.",
+    );
+  }
 
   if (!data.routes || data.routes.length === 0) {
-    throw new Error("LocationIQ returned no routes.");
+    throw new Error(
+      "LocationIQ returned no routes.",
+    );
   }
 
   const route = data.routes[0];
@@ -167,6 +208,12 @@ export const getDirections = async (
     route.geometry?.coordinates?.map(
       (coordinate: [number, number]) => coordinate,
     ) ?? [];
+
+  if (coordinates.length < 2) {
+    throw new Error(
+      "LocationIQ returned an empty route.",
+    );
+  }
 
   return {
     coordinates,
@@ -179,10 +226,8 @@ export const fetchMapTile = async (
   z: number,
   x: number,
   y: number,
-  res: Response,
+  res: ExpressResponse,
 ) => {
-  const LOCATIONIQ_API_KEY = process.env.LOCATIONIQ_API_KEY;
-
   if (!LOCATIONIQ_API_KEY) {
     throw new Error(
       "LOCATIONIQ_API_KEY is not configured in environment variables.",
@@ -190,7 +235,8 @@ export const fetchMapTile = async (
   }
 
   const subdomains = ["a", "b", "c"];
-  const subdomain = subdomains[(x + y) % subdomains.length];
+  const subdomain =
+    subdomains[(x + y) % subdomains.length];
 
   const url =
     `https://${subdomain}-tiles.locationiq.com/v3/streets/r/` +
@@ -199,13 +245,24 @@ export const fetchMapTile = async (
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error("Failed to fetch map tile.");
+    throw new Error(
+      "Failed to fetch map tile.",
+    );
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer());
+  const buffer = Buffer.from(
+    await response.arrayBuffer(),
+  );
 
-  res.setHeader("Content-Type", "image/png");
-  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.setHeader(
+    "Content-Type",
+    "image/png",
+  );
+
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=86400",
+  );
 
   res.send(buffer);
 };
