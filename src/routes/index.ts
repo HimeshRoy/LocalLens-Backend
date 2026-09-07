@@ -14,6 +14,7 @@ import locationRoutes from "../modules/location/location.routes.js";
 import feedRoutes from "../modules/feed/feed.routes.js";
 import adminRoutes from "../modules/admin/admin.routes.js";
 import verificationRequestRoutes from "../modules/verification-request/verification-request.routes.js";
+import appRoutes from "../modules/app/app.routes.js";
 
 const router = Router();
 
@@ -38,5 +39,6 @@ router.use("/location", locationRoutes);
 router.use("/ai", aiRoutes);
 router.use("/feed", feedRoutes);
 router.use("/admin", adminRoutes);
+router.use("/app", appRoutes);
 
 export default router;
