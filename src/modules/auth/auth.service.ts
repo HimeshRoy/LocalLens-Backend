@@ -36,16 +36,24 @@ export const registerUser = async (payload: RegisterUserInput) => {
     },
   });
 
+  const token = generateToken(
+    user.id,
+    user.username,
+    user.role,
+  );
+
   return {
     success: true,
     message: "User registered successfully",
     data: {
-      id: user.id,
-      fullName: user.fullName,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
+      token,
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     },
   };
 };
